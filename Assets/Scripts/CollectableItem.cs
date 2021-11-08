@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum PowerUpType
 {
-    Fire
+    Fire,
+    Bomb,
+    Shield
 }
 
 public class CollectableItem : MonoBehaviour
@@ -31,11 +31,20 @@ public class CollectableItem : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        var hero = collision.gameObject.GetComponent<HeroController>();
-
-        if (hero)
+        if (collision.gameObject.CompareTag("Player"))
         {
-            hero.PowerUp();
+            var hero = collision.gameObject.GetComponent<HeroController>();
+
+            switch (type)
+            {
+                case PowerUpType.Fire:
+                    hero.PowerUp();
+                    break;
+                case PowerUpType.Bomb:
+                    GameManager.Instance.bombCount++;
+                    break;
+            }
+
             PlaySFX();
             Destroy(gameObject);
         }

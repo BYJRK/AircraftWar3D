@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,15 +7,22 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("UI Related")]
     private int score = 0;
     [SerializeField] Text scoreText;
+    [SerializeField] Text bombText;
     [SerializeField] Button restartButton;
     [SerializeField] Text levelUpText;
+    [SerializeField] float levelUpInterval = 20f;
 
-    Color levelUpColor;
-    Color levelUpTransparentColor;
+    public int bombCount = 0;
 
     public bool isHeroAlive = true;
+
+    public BaseSpawner enemySpawner;
+    public BaseSpawner itemSpawner;
+
+    #region Singleton
 
     private static GameManager instance;
 
@@ -28,14 +36,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    #endregion
+
     private void Awake()
     {
         if (instance && instance != this)
             Destroy(this);
+    }
 
-        levelUpColor = levelUpText.color;
-        levelUpTransparentColor = levelUpColor;
-        levelUpTransparentColor.a = 0;
+    private void Start()
+    {
+        score = 0;
+        scoreText.text = score.ToString();
+
+        ticksBeforeLevelUp = levelUpInterval;
     }
 
     public void IncreaseScore(int value)
@@ -45,7 +59,22 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        scoreText.text = score.ToString();
+        UpdateUI();
+
+        LevelUpTimer();
+    }
+
+    private void UpdateUI()
+    {
+        scoreText.text = $"Score: {score}";
+        if (bombCount > 0)
+        {
+            bombText.text = $"Bomb: {bombCount}";
+        }
+        else
+        {
+            bombText.text = "";
+        }
     }
 
     public void ReadyForRestart()
@@ -63,28 +92,67 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    public void ShowLevelUp(int level)
+    #region Level Up
+
+    private int currentLevel = 0;
+    private float ticksBeforeLevelUp;
+
+    private void LevelUpTimer()
     {
-        StartCoroutine(ShowLevelUpText(level));
+        ticksBeforeLevelUp -= Time.unscaledDeltaTime;
+        if (ticksBeforeLevelUp <= 0)
+        {
+            LevelUp();
+            ticksBeforeLevelUp += levelUpInterval;
+        }
     }
 
-    IEnumerator ShowLevelUpText(int level)
+    public void LevelUp()
+    {
+        StartCoroutine(ShowLevelUp(++currentLevel));
+        LevelUpLogic(currentLevel);
+    }
+
+    private void LevelUpLogic(int level)
+    {
+        switch (level)
+        {
+            case 1:
+                Time.timeScale = 1.15f;
+                break;
+            case 2:
+                enemySpawner.spawnInterval = 1.35f;
+                break;
+            case 3:
+                Time.timeScale = 1.25f;
+                enemySpawner.SetWeights(5, 4, 1);
+                break;
+            case 4:
+                enemySpawner.spawnInterval = 1.2f;
+                break;
+            case 5:
+                Time.timeScale = 1.35f;
+                enemySpawner.SetWeights(4, 4, 2);
+                break;
+            case 8:
+                enemySpawner.SetWeights(3, 4, 3);
+                break;
+            default:
+                Time.timeScale += 0.15f;
+                break;
+        }
+    }
+
+    public IEnumerator ShowLevelUp(int level)
     {
         levelUpText.gameObject.SetActive(true);
-        levelUpText.color = levelUpColor;
-        var color = levelUpText.color;
 
         levelUpText.text = $"Level {level}";
+        levelUpText.GetComponent<Animator>().SetTrigger("Show");
 
-        yield return new WaitForSecondsRealtime(2f);
-
-        while (color.a > 0.05)
-        {
-            color = Color.Lerp(color, levelUpTransparentColor, 0.05f);
-            levelUpText.color = color;
-            yield return null;
-        }
-
+        yield return new WaitForSeconds(3f);
         levelUpText.gameObject.SetActive(false);
     }
+
+    #endregion
 }

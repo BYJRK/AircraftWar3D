@@ -6,11 +6,6 @@ public class Missle : MonoBehaviour
 {
     [SerializeField] AircraftSO aircraftSO;
 
-    void Start()
-    {
-
-    }
-
     void Update()
     {
         transform.position += Vector3.forward * aircraftSO.basicSpeed * Time.deltaTime;
@@ -21,13 +16,12 @@ public class Missle : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent<Aircraft>(out var aircraft))
+        // 如果击中了敌人飞机
+        if (collision.gameObject.CompareTag("Enemy"))
         {
-            if (!aircraft.isEnemy)
-                return;
+            var aircraft = collision.gameObject.GetComponent<Aircraft>();
 
             aircraft.Damage(aircraftSO.hp);
-
             aircraftSO.CastExplosion(transform.position);
 
             Destroy(gameObject);

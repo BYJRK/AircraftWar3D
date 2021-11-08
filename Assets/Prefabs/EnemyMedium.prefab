@@ -13,6 +13,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.8614558, y: 1.0798755, z: 2.733671}
   m_Center: {x: 0, y: 0.0033124685, z: -0.08319461}
+--- !u!114 &6224247533356686194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6678590412103363808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be8031d7bbfb72e49adbe6fa973a4b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aircraftSO: {fileID: 11400000, guid: 256231374443e7740b8f40d8827b20d6, type: 2}
+  speedScaler: 1
 --- !u!1001 &4444710812810035747
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91,6 +105,10 @@ PrefabInstance:
     - target: {fileID: 6990103904304328387, guid: f9508aba420010a44ac3d54365255e00, type: 3}
       propertyPath: m_Name
       value: EnemyMedium
+      objectReference: {fileID: 0}
+    - target: {fileID: 6990103904304328387, guid: f9508aba420010a44ac3d54365255e00, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 7816093792000658254, guid: f9508aba420010a44ac3d54365255e00, type: 3}
       propertyPath: isEnemy

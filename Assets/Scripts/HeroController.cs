@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class HeroController : MonoBehaviour
 {
-    Camera mainCam;
+    private Camera mainCam;
 
-    float speed;
+    private float speed;
 
     [SerializeField] Transform[] muzzles;
     int muzzleIndex = 0;
 
     bool isPowerUp = false;
-    [SerializeField] float missileInterval = 0.6f;
 
     [SerializeField] GameObject missile;
+    [SerializeField] float missileInterval = 0.35f;
 
     float lastMissile;
 
@@ -28,18 +28,15 @@ public class HeroController : MonoBehaviour
 
     void Update()
     {
-        var mousePos = Input.mousePosition;
-        mousePos.z = mainCam.transform.position.y;
-        var pos = mainCam.ScreenToWorldPoint(mousePos);
+        HeroMovement();
 
-        if (pos.x < -4.75f) pos.x = -4.75f;
-        if (pos.x >= 4.75f) pos.x = 4.75f;
-        if (pos.z <= -18f) pos.z = -18f;
-        if (pos.z >= 1.75f) pos.z = 1.75f;
+        FireMissile();
 
-        transform.position = Vector3.Lerp(transform.position, pos, speed);
+        LaunchBomb();
+    }
 
-        // launch a missile
+    private void FireMissile()
+    {
         var now = Time.time;
         if (now - lastMissile >= missileInterval)
         {
@@ -60,11 +57,40 @@ public class HeroController : MonoBehaviour
         }
     }
 
+    private void LaunchBomb()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && GameManager.Instance.bombCount > 0)
+        {
+            GameManager.Instance.bombCount--;
+
+            var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            foreach (var enemy in enemies)
+            {
+                var aircraft = enemy.GetComponent<Aircraft>();
+                aircraft.Damage(100);
+            }
+        }
+    }
+
+    private void HeroMovement()
+    {
+        var mousePos = Input.mousePosition;
+        mousePos.z = mainCam.transform.position.y;
+        var pos = mainCam.ScreenToWorldPoint(mousePos);
+
+        if (pos.x < -4.75f) pos.x = -4.75f;
+        if (pos.x >= 4.75f) pos.x = 4.75f;
+        if (pos.z <= -18f) pos.z = -18f;
+        if (pos.z >= 1.75f) pos.z = 1.75f;
+
+        transform.position = Vector3.Slerp(transform.position, pos, speed);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         var aircraft = collision.gameObject.GetComponent<Aircraft>();
 
-        if (aircraft && aircraft.isEnemy)
+        if (aircraft && aircraft.CompareTag("Enemy"))
         {
             GameOver(aircraft);
         }
