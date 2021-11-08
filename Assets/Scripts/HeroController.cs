@@ -102,7 +102,7 @@ public class HeroController : MonoBehaviour
 
         GetComponent<Aircraft>().aircraftSO.CastExplosion(transform.position);
 
-        aircraft.Damage(1);
+        aircraft.Damage(4);
 
         GameManager.Instance.ReadyForRestart();
 

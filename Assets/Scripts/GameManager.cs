@@ -80,6 +80,9 @@ public class GameManager : MonoBehaviour
     public void ReadyForRestart()
     {
         restartButton.gameObject.SetActive(true);
+        enemySpawner.gameObject.SetActive(false);
+        itemSpawner.gameObject.SetActive(false);
+
         Time.timeScale = 0.1f;
         Cursor.visible = true;
         isHeroAlive = false;
